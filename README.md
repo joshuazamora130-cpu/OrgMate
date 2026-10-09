@@ -1,1 +1,3 @@
-# OrgMateTeam: Venice Anne Manacop, Jay-z Malabanan,  Emmanuel Joshua Zamora
+# OrgMate
+
+Team: Venice Anne Manacop, Jay-z Malabanan, Emmanuel Joshua Zamora
