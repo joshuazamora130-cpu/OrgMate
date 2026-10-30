@@ -1,9 +1,9 @@
-package src;
+package OrgMate.src;
 import java.util.Scanner;
-import src.model.Student;
+import OrgMate.src.model.Student;
+
 
 public class Main {
-
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
@@ -28,9 +28,12 @@ public class Main {
             block,
             program
         );
-
         student.displayInfo();
 
+        // Next Model class comes here
+        
+        
+        // Do not erase this
         input.close();
     }
 }
