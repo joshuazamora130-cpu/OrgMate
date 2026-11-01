@@ -5,6 +5,7 @@ import src.model.Student;
 import src.model.President;
 import src.model.Secretary;
 import src.model.Adviser;
+import src.model.GCashPayment;
 
 public class Main {
 
@@ -29,7 +30,18 @@ public class Main {
         Student student = new Student(studentName, studentID, block, program);
         student.displayInfo();
 
-        // 2. Instantiate Officers (President ID: 25-00037 and Secretary ID: 25-0061 used as both Student ID & Officer ID)
+        // 2. Submit Membership Fee via GCash
+        System.out.println("\n===== Membership Fee Submission =====");
+        GCashPayment gcashPay = new GCashPayment(
+            300.00,
+            "2026-03-15",
+            "Pending Verification",
+            "100234567890",
+            "09171234567"
+        );
+        gcashPay.processPayment();
+
+        // 3. Instantiate Officers (President ID: 25-00037, Secretary ID: 25-0061, Adviser without Student ID)
         System.out.println("\n==================================================");
         System.out.println("             ORGMATE OFFICER DASHBOARD            ");
         System.out.println("==================================================");
@@ -37,7 +49,7 @@ public class Main {
         President president = new President(
             "Maria Santos",
             "25-00037", // Student ID is used as Officer ID
-            "CS-2101",
+            "CS-3101",
             "BS Computer Science"
         );
 
@@ -55,7 +67,7 @@ public class Main {
             "25-00001"
         );
 
-        // 3. Execution & Display Logic
+        // 4. Execution & Display Logic
         president.displayInfo();
         president.performDuty();
 
