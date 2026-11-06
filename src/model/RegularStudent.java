@@ -1,4 +1,4 @@
-package src.model;
+package OrgMate.src.model;
 
 public class RegularStudent extends Student {
     private String membershipStatus; // e.g. "Active", "Inactive", "Pending"

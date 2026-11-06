@@ -12,6 +12,7 @@ public class Main {
         int choice;
 
         do {
+
             // MAIN MENU
             System.out.println("\n================================");
             System.out.println("       CICS ORGMATE SYSTEM");
@@ -46,6 +47,8 @@ public class Main {
             }
 
         } while (choice != 3);
+
+        // Next Model class comes here
 
         input.close();
     }
