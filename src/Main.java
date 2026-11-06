@@ -1,89 +1,52 @@
+
 package src;
 
 import java.util.Scanner;
-import src.model.Student;
-import src.model.President;
-import src.model.Secretary;
-import src.model.Adviser;
-import src.model.GCashPayment;
+import src.model.Auth;
 
 public class Main {
 
     public static void main(String[] args) {
+
         Scanner input = new Scanner(System.in);
+        int choice;
 
-        // 1. Student Interactive Registration
-        System.out.println("===== OrgMate Student Registration =====");
+        do {
 
-        System.out.print("Enter student name: ");
-        String studentName = input.nextLine();
+            // MAIN MENU
+            System.out.println("\n================================");
+            System.out.println("       CICS ORGMATE SYSTEM");
+            System.out.println("================================");
+            System.out.println("[1] Login");
+            System.out.println("[2] Sign Up");
+            System.out.println("[3] Exit");
+            System.out.print("Enter choice: ");
 
-        System.out.print("Enter student ID: ");
-        String studentID = input.nextLine();
+            try {
+                choice = Integer.parseInt(input.nextLine());
+            } catch (NumberFormatException e) {
+                choice = -1;
+            }
 
-        System.out.print("Enter block: ");
-        String block = input.nextLine();
+            switch (choice) {
 
-        System.out.print("Enter program: ");
-        String program = input.nextLine();
+                case 1:
+                    Auth.login(input);
+                    break;
 
-        Student student = new Student(studentName, studentID, block, program);
-        student.displayInfo();
+                case 2:
+                    Auth.signUp(input);
+                    break;
 
-        // 2. Submit Membership Fee via GCash
-        System.out.println("\n===== Membership Fee Submission =====");
-        GCashPayment gcashPay = new GCashPayment(
-            300.00,
-            "2026-03-15",
-            "Pending Verification",
-            "100234567890",
-            "09171234567"
-        );
-        gcashPay.processPayment();
+                case 3:
+                    System.out.println("\nThank you for using OrgMate!");
+                    break;
 
-        // 3. Instantiate Officers (President ID: 25-00037, Secretary ID: 25-0061, Adviser without Student ID)
-        System.out.println("\n==================================================");
-        System.out.println("             ORGMATE OFFICER DASHBOARD            ");
-        System.out.println("==================================================");
+                default:
+                    System.out.println("\nInvalid choice. Please try again.");
+            }
 
-        President president = new President(
-            "Maria Santos",
-            "25-00037", // Student ID is used as Officer ID
-            "CS-3101",
-            "BS Computer Science"
-        );
-
-        Secretary secretary = new Secretary(
-            "Juan Dela Cruz",
-            "25-0061",  // Student ID is used as Officer ID
-            "IT-2102",
-            "BS Information Technology"
-        );
-
-        Adviser adviser = new Adviser(
-            "Dr. Antonio Reyes",
-            "Faculty",
-            "CICS Department",
-            "25-00001"
-        );
-
-        // 4. Execution & Display Logic
-        president.displayInfo();
-        president.performDuty();
-
-        System.out.println("\n--------------------------------------------------");
-
-        secretary.displayInfo();
-        secretary.addMember(student.getStudentName());
-        secretary.updateMember(student.getStudentName());
-        secretary.performDuty();
-
-        System.out.println("\n--------------------------------------------------");
-
-        adviser.displayInfo();
-        adviser.performDuty();
-
-        System.out.println("\n==================================================");
+        } while (choice != 3);
 
         input.close();
     }
