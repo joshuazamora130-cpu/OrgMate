@@ -1,4 +1,4 @@
-package src.model;
+package OrgMate.src.model;
 
 public class Adviser extends Officer {
 

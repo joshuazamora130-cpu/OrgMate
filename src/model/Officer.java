@@ -1,4 +1,4 @@
-package src.model;
+package OrgMate.src.model;
 
 public abstract class Officer extends Student {
     // Attributes

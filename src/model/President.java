@@ -1,4 +1,4 @@
-package src.model;
+package OrgMate.src.model;
 
 public class President extends Officer {
 
