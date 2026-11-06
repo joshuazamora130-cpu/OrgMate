@@ -1,35 +1,51 @@
+
 package src;
+
 import java.util.Scanner;
-import src.model.Student;
+import src.model.Auth;
 
 public class Main {
 
     public static void main(String[] args) {
+
         Scanner input = new Scanner(System.in);
+        int choice;
 
-        // Registration - Student.java
-        System.out.println("===== OrgMate Student Registration =====");
+        do {
+            // MAIN MENU
+            System.out.println("\n================================");
+            System.out.println("       CICS ORGMATE SYSTEM");
+            System.out.println("================================");
+            System.out.println("[1] Login");
+            System.out.println("[2] Sign Up");
+            System.out.println("[3] Exit");
+            System.out.print("Enter choice: ");
 
-        System.out.print("Enter student name: ");
-        String studentName = input.nextLine();
+            try {
+                choice = Integer.parseInt(input.nextLine());
+            } catch (NumberFormatException e) {
+                choice = -1;
+            }
 
-        System.out.print("Enter student ID: ");
-        String studentID = input.nextLine();
+            switch (choice) {
 
-        System.out.print("Enter block: ");
-        String block = input.nextLine();
+                case 1:
+                    Auth.login(input);
+                    break;
 
-        System.out.print("Enter program: ");
-        String program = input.nextLine();
+                case 2:
+                    Auth.signUp(input);
+                    break;
 
-        Student student = new Student(
-            studentName,
-            studentID,
-            block,
-            program
-        );
+                case 3:
+                    System.out.println("\nThank you for using OrgMate!");
+                    break;
 
-        student.displayInfo();
+                default:
+                    System.out.println("\nInvalid choice. Please try again.");
+            }
+
+        } while (choice != 3);
 
         input.close();
     }
