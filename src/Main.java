@@ -48,8 +48,6 @@ public class Main {
 
         } while (choice != 3);
 
-        // Next Model class comes here
-
         input.close();
     }
 }
