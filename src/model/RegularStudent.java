@@ -1,31 +1,23 @@
-package OrgMate.src.model;
+package src.model;
 
 public class RegularStudent extends Student {
-    private String membershipStatus; // e.g. "Active", "Inactive", "Pending"
+    private String membershipStatus;
 
-    public RegularStudent(String studentName, String studentID, String block,
-        String department, String program) {
-        super(studentName, studentID, block, department);
+    public RegularStudent(String studentName, String studentID, String block, String program) {
+        super(studentName, studentID, block, program);
         this.membershipStatus = "Pending";
     }
 
-    public String getMembershipStatus() {
-        return membershipStatus;
-    }
-
-    public void setMembershipStatus(String membershipStatus) {
-        this.membershipStatus = membershipStatus;
-    }
+    public String getMembershipStatus() { return membershipStatus; }
+    public void setMembershipStatus(String membershipStatus) { this.membershipStatus = membershipStatus; }
 
     public void viewMembership() {
         System.out.println("Membership status of " + getStudentName() + ": " + membershipStatus);
     }
 
-    // Student submits a payment; it starts as "Pending" until the Treasurer verifies it.
     public Payment submitPayment(Payment payment) {
         payment.setStatus("Pending");
-        System.out.println(getStudentName() + " submitted payment (Ref: "
-                + payment.getReferenceNo() + ").");
+        System.out.println(getStudentName() + " submitted payment (Ref: " + payment.getReferenceNo() + ").");
         return payment;
     }
 

@@ -1,10 +1,12 @@
-package OrgMate.src.model;
+
+package src.model;
 
 public class President extends Officer {
 
-    // Constructor passing studentID as both studentID and officerID
-    public President(String studentName, String studentID, String block, String program) {
-        super(studentName, studentID, block, program, studentID, "President");
+    // Constructor passing manually entered Officer ID
+    public President(String studentName, String studentID,
+                    String block, String program, String officerID) {
+        super(studentName, studentID, block, program, officerID, "President");
     }
 
     // President-specific methods
