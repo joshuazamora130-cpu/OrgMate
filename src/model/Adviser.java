@@ -1,10 +1,12 @@
-package OrgMate.src.model;
+
+package src.model;
 
 public class Adviser extends Officer {
 
-    // Constructor without studentID parameter (passes "N/A" to super superclass)
-    public Adviser(String studentName, String block, String program, String officerID) {
-        super(studentName, "N/A", block, program, officerID, "Adviser");
+    // Constructor accepting studentID and manually entered officerID
+    public Adviser(String studentName, String studentID,
+                   String block, String program, String officerID) {
+        super(studentName, studentID, block, program, officerID, "Adviser");
     }
 
     // Adviser-specific methods

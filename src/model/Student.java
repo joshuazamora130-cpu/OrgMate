@@ -1,4 +1,4 @@
-package OrgMate.src.model;
+package src.model;
 
 public class Student {
     // Attributes

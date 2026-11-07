@@ -35,7 +35,7 @@ public class Main {
                     break;
 
                 case 2:
-                    Auth.signUp(input);
+                    signUpMenu(input);
                     break;
 
                 case 3:
@@ -49,5 +49,43 @@ public class Main {
         } while (choice != 3);
 
         input.close();
+    }
+
+    // SIGN UP MENU
+    private static void signUpMenu(Scanner input) {
+
+        int choice;
+
+        System.out.println("\n================================");
+        System.out.println("          SIGN UP");
+        System.out.println("================================");
+        System.out.println("[1] Student Registration");
+        System.out.println("[2] Officer Registration");
+        System.out.println("[3] Back to Main Menu");
+        System.out.print("Enter choice: ");
+
+        try {
+            choice = Integer.parseInt(input.nextLine());
+        } catch (NumberFormatException e) {
+            choice = -1;
+        }
+
+        switch (choice) {
+
+            case 1:
+                Auth.signUp(input);
+                break;
+
+            case 2:
+                Auth.registerOfficer(input);
+                break;
+
+            case 3:
+                System.out.println("\nReturning to Main Menu...");
+                break;
+
+            default:
+                System.out.println("\nInvalid choice. Please try again.");
+        }
     }
 }
