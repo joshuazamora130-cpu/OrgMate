@@ -9,7 +9,7 @@ public abstract class Payment {
     private String referenceNo;
 
     public Payment(double amount, String paymentDate,
-                   String status, String referenceNo) {
+                    String status, String referenceNo) {
         this.amount = amount;
         this.paymentDate = paymentDate;
         this.status = status;
@@ -45,6 +45,16 @@ public abstract class Payment {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public void setPaymentDate(String paymentDate) {
+    this.paymentDate = paymentDate;
+}
+
+    public void setReferenceNo(String referenceNo) {
+        this.referenceNo = referenceNo;
+    }
+
+    
 
     // Abstract method
     public abstract void processPayment();

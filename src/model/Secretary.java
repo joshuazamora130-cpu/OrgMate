@@ -1,199 +1,217 @@
 
 package src.model;
 
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
+
+import src.services.StudentRosterStorage;
+import src.services.PaymentStorage;
 
 public class Secretary extends Officer {
 
-    // Constructor passing manually entered Officer ID
+    // ==========================================
+    // CONSTRUCTOR
+    // ==========================================
+
     public Secretary(String studentName, String studentID,
                      String block, String program, String officerID) {
-        super(studentName, studentID, block, program, officerID, "Secretary");
-    }
 
-    // 1. Register Member Information
-    public void registerMember(String name) {
-        System.out.println("[Secretary]: Registering member information for " + name);
-    }
-
-    // 1. Update Member Information
-    public void updateMemberInfo(String studentID) {
-        System.out.println("[Secretary]: Updating member information for " + studentID);
-    }
-
-    // 2. Search Member Records
-    public void searchMemberRecords(String studentID) {
-        System.out.println("[Secretary]: Searching member records for " + studentID);
-    }
-
-    // 2. Manage Member Records
-    public void manageMemberRecords(String studentID) {
-        System.out.println("[Secretary]: Managing member records for " + studentID);
-    }
-
-    // 3. Check Membership Status
-    public void checkMembershipStatus(String studentID) {
-        System.out.println("[Secretary]: Checking membership status of " + studentID);
-    }
-
-    // 4. Generate Membership Report
-    public void generateMembershipReport() {
-        System.out.println("[Secretary]: Generating membership report...");
+        super(studentName, studentID, block, program,
+              officerID, "Secretary");
     }
 
     // ==========================================
-    // SECRETARY DASHBOARD
+    // 1. REGISTER MEMBER INFORMATION
     // ==========================================
 
-    public void showDashboard(Scanner input) {
+    public boolean registerMember(ImportedStudent student) {
 
-        int choice = 0;
+        if (student == null) {
+            return false;
+        }
 
-        do {
-            System.out.println("\n================================");
-            System.out.println("       SECRETARY DASHBOARD");
-            System.out.println("================================");
-            System.out.println("[1] Register / Update Member Information");
-            System.out.println("[2] Search and Manage Member Records");
-            System.out.println("[3] Check Membership Status");
-            System.out.println("[4] Generate Membership Report");
-            System.out.println("[5] View Officer Information");
-            System.out.println("[6] Logout");
-            System.out.print("Enter choice: ");
+        return StudentRosterStorage.addStudent(student);
+    }
 
-            try {
-                choice = Integer.parseInt(input.nextLine());
-            } catch (NumberFormatException e) {
-                choice = -1;
+    // ==========================================
+    // UPDATE MEMBER INFORMATION
+    // ==========================================
+
+    public boolean updateMemberInfo(
+            String studentID,
+            String name,
+            String program,
+            String yearLevel,
+            String block) {
+
+        return StudentRosterStorage.updateStudent(
+            studentID, name, program, yearLevel, block
+        );
+    }
+
+    // ==========================================
+    // 2. SEARCH MEMBER RECORDS
+    // ==========================================
+
+    public ImportedStudent searchMemberRecords(String studentID) {
+
+        return StudentRosterStorage.findStudent(studentID);
+    }
+
+    // ==========================================
+    // MANAGE MEMBER RECORDS
+    // ==========================================
+
+    public boolean deleteMemberRecord(String studentID) {
+
+        return StudentRosterStorage.deleteStudent(studentID);
+    }
+
+    public ArrayList<ImportedStudent> getAllMemberRecords() {
+
+        return StudentRosterStorage.getAllStudents();
+    }
+
+    // ==========================================
+    // 3. CHECK MEMBERSHIP STATUS
+    // ==========================================
+
+    public String checkMembershipStatus(String studentID) {
+
+        ImportedStudent student =
+                StudentRosterStorage.findStudent(studentID);
+
+        if (student == null) {
+            return "Student record not found.";
+        }
+
+        ArrayList<PaymentTicket> tickets =
+                PaymentStorage.getTicketsByStudent(studentID);
+
+        for (PaymentTicket ticket : tickets) {
+
+            if ("Reflected".equalsIgnoreCase(ticket.getStatus())) {
+                return "Paid / Verified";
+            }
+        }
+
+        return "No Verified Fee Participation";
+    }
+
+    // ==========================================
+    // 4. GENERATE MEMBERSHIP REPORT
+    // ==========================================
+
+    public String generateMembershipReport() {
+
+        ArrayList<ImportedStudent> students =
+                StudentRosterStorage.getAllStudents();
+
+        // Program -> [Population, Verified Participants]
+        Map<String, int[]> programStats = new LinkedHashMap<>();
+
+        int totalPopulation = students.size();
+        int totalParticipants = 0;
+
+        for (ImportedStudent student : students) {
+
+            String program = student.getProgram();
+
+            programStats.putIfAbsent(program, new int[2]);
+
+            // Count population
+            programStats.get(program)[0]++;
+
+            // Check verified payment
+            boolean verified = false;
+
+            ArrayList<PaymentTicket> studentTickets =
+                    PaymentStorage.getTicketsByStudent(
+                        student.getStudentID()
+                    );
+
+            for (PaymentTicket ticket : studentTickets) {
+
+                if ("Reflected".equalsIgnoreCase(ticket.getStatus())) {
+                    verified = true;
+                    break;
+                }
             }
 
-            switch (choice) {
-
-                case 1:
-                    registerUpdateMenu(input);
-                    break;
-
-                case 2:
-                    searchManageMenu(input);
-                    break;
-
-                case 3:
-                    System.out.print("Enter Student ID: ");
-                    String statusID = input.nextLine().trim();
-                    checkMembershipStatus(statusID);
-                    break;
-
-                case 4:
-                    generateMembershipReport();
-                    break;
-
-                case 5:
-                    displayInfo();
-                    break;
-
-                case 6:
-                    System.out.println("\nLogging out...");
-                    break;
-
-                default:
-                    System.out.println("\nInvalid choice. Please try again.");
+            if (verified) {
+                programStats.get(program)[1]++;
+                totalParticipants++;
             }
+        }
 
-        } while (choice != 6);
+        int nonParticipants = totalPopulation - totalParticipants;
+
+        double participationRate = totalPopulation == 0
+                ? 0
+                : (totalParticipants * 100.0) / totalPopulation;
+
+        StringBuilder report = new StringBuilder();
+
+        report.append("\n======================================\n");
+        report.append("       MEMBERSHIP PARTICIPATION REPORT\n");
+        report.append("======================================\n");
+
+        report.append("Total Student Population: ")
+              .append(totalPopulation).append("\n");
+
+        report.append("Verified Fee Participants: ")
+              .append(totalParticipants).append("\n");
+
+        report.append("No Verified Fee Participation: ")
+              .append(nonParticipants).append("\n");
+
+        report.append(String.format(
+            "Overall Participation Rate: %.2f%%%n",
+            participationRate
+        ));
+
+        report.append("\n===== PROGRAM BREAKDOWN =====\n");
+
+        for (Map.Entry<String, int[]> entry : programStats.entrySet()) {
+
+            String program = entry.getKey();
+            int population = entry.getValue()[0];
+            int participants = entry.getValue()[1];
+
+            double rate = population == 0
+                    ? 0
+                    : (participants * 100.0) / population;
+
+            report.append("\nProgram: ").append(program).append("\n");
+            report.append("Population: ").append(population).append("\n");
+
+            report.append("Verified Participants: ")
+                  .append(participants).append("\n");
+
+            report.append("No Verified Participation: ")
+                  .append(population - participants).append("\n");
+
+            report.append(String.format(
+                "Participation Rate: %.2f%%%n", rate
+            ));
+        }
+
+        report.append("\n======================================\n");
+
+        return report.toString();
     }
 
     // ==========================================
-    // REGISTER / UPDATE MENU
+    // OFFICER DUTIES
     // ==========================================
-
-    private void registerUpdateMenu(Scanner input) {
-
-        System.out.println("\n===== REGISTER / UPDATE MEMBER =====");
-        System.out.println("[1] Register Member");
-        System.out.println("[2] Update Member Information");
-        System.out.println("[3] Back");
-        System.out.print("Enter choice: ");
-
-        int choice;
-
-        try {
-            choice = Integer.parseInt(input.nextLine());
-        } catch (NumberFormatException e) {
-            choice = -1;
-        }
-
-        switch (choice) {
-
-            case 1:
-                System.out.print("Enter Member Name: ");
-                String name = input.nextLine().trim();
-                registerMember(name);
-                break;
-
-            case 2:
-                System.out.print("Enter Student ID: ");
-                String studentID = input.nextLine().trim();
-                updateMemberInfo(studentID);
-                break;
-
-            case 3:
-                System.out.println("Returning to Secretary Dashboard...");
-                break;
-
-            default:
-                System.out.println("Invalid choice.");
-        }
-    }
-
-    // ==========================================
-    // SEARCH / MANAGE RECORDS MENU
-    // ==========================================
-
-    private void searchManageMenu(Scanner input) {
-
-        System.out.println("\n===== SEARCH / MANAGE MEMBER RECORDS =====");
-        System.out.println("[1] Search Member Records");
-        System.out.println("[2] Manage Member Records");
-        System.out.println("[3] Back");
-        System.out.print("Enter choice: ");
-
-        int choice;
-
-        try {
-            choice = Integer.parseInt(input.nextLine());
-        } catch (NumberFormatException e) {
-            choice = -1;
-        }
-
-        switch (choice) {
-
-            case 1:
-                System.out.print("Enter Student ID: ");
-                String searchID = input.nextLine().trim();
-                searchMemberRecords(searchID);
-                break;
-
-            case 2:
-                System.out.print("Enter Student ID: ");
-                String manageID = input.nextLine().trim();
-                manageMemberRecords(manageID);
-                break;
-
-            case 3:
-                System.out.println("Returning to Secretary Dashboard...");
-                break;
-
-            default:
-                System.out.println("Invalid choice.");
-        }
-    }
 
     @Override
     public void performDuty() {
-        System.out.println("\n===== SECRETARY FUNCTIONS =====");
-        System.out.println("[1] Register / Update Member Information");
-        System.out.println("[2] Search and Manage Member Records");
-        System.out.println("[3] Check Membership Status");
-        System.out.println("[4] Generate Membership Report");
+
+        System.out.println(
+            "Secretary is responsible for maintaining "
+            + "official student and membership records."
+        );
     }
 }
