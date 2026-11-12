@@ -11,7 +11,6 @@ import src.model.Officer;
 import src.model.Secretary;
 import src.model.Treasurer;
 import src.model.President;
-import src.model.Adviser;
 import src.model.Auditor;
 import src.services.AccountStorage;
 
@@ -30,6 +29,7 @@ public class SignUp {
         int choice = getChoice(input, "Select account type: ");
 
         switch (choice) {
+
             case 1:
                 registerStudent(input);
                 break;
@@ -46,6 +46,8 @@ public class SignUp {
                 System.out.println("Invalid choice.");
         }
     }
+
+    // REGULAR STUDENT REGISTRATION
 
     private static void registerStudent(Scanner input) {
 
@@ -94,6 +96,8 @@ public class SignUp {
         System.out.println("You can now log in using your SR Code.");
     }
 
+    // STUDENT OFFICER REGISTRATION
+
     private static void registerOfficer(Scanner input) {
 
         System.out.println("\n========== OFFICER REGISTRATION ==========");
@@ -119,12 +123,11 @@ public class SignUp {
         System.out.println("[1] Secretary");
         System.out.println("[2] Treasurer");
         System.out.println("[3] President");
-        System.out.println("[4] Adviser");
-        System.out.println("[5] Auditor");
+        System.out.println("[4] Auditor");
 
         int position = getChoice(input, "Select position: ");
 
-        if (position < 1 || position > 5) {
+        if (position < 1 || position > 4) {
             System.out.println("Invalid officer position.");
             return;
         }
@@ -147,6 +150,7 @@ public class SignUp {
         Officer officer;
 
         switch (position) {
+
             case 1:
                 officer = new Secretary(
                     name, srCode, block, program, officerID
@@ -166,12 +170,6 @@ public class SignUp {
                 break;
 
             case 4:
-                officer = new Adviser(
-                    name, srCode, block, program, officerID
-                );
-                break;
-
-            case 5:
                 officer = new Auditor(
                     name, srCode, block, program, officerID
                 );
@@ -194,6 +192,8 @@ public class SignUp {
         System.out.println("\nOfficer registration successful!");
         System.out.println("You can now log in using your SR Code.");
     }
+
+    // PASSWORD VALIDATION
 
     private static String getPassword(Scanner input) {
 
@@ -220,11 +220,14 @@ public class SignUp {
         return password;
     }
 
+    // INPUT VALIDATION
+
     private static String getInput(Scanner input, String message) {
 
         String value;
 
         do {
+
             System.out.print(message);
             value = input.nextLine().trim();
 
@@ -243,6 +246,7 @@ public class SignUp {
 
         try {
             return Integer.parseInt(input.nextLine().trim());
+
         } catch (NumberFormatException e) {
             return -1;
         }

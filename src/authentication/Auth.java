@@ -2,19 +2,63 @@
 package src.authentication;
 
 import src.model.Account;
+import src.model.Adviser;
+import src.model.FacultyAccount;
+
 import src.services.AccountStorage;
+import src.services.FacultyAccountStorage;
 
 public class Auth {
 
-    // Officer authorization code
+    // ==========================================
+    // OFFICER AUTHORIZATION CODE
+    // ==========================================
+
     private static final String OFFICER_REGISTRATION_CODE =
             "ORGMATE-ADMIN-2026";
 
     // ==========================================
-    // LOGIN AUTHENTICATION
+    // TEMPORARY FACULTY TEST ACCOUNT
     // ==========================================
 
-    public static Account authenticate(String srCode, String password) {
+    static {
+        initializeTestFacultyAccount();
+    }
+
+    private static void initializeTestFacultyAccount() {
+
+        String email = "maria.santos@orgmate.test";
+
+        // Prevent duplicate initialization
+        if (FacultyAccountStorage.findByEmail(email) != null) {
+            return;
+        }
+
+        Adviser adviser = new Adviser(
+            "Dr. Maria Santos",
+            "FAC-001"
+        );
+
+        FacultyAccount facultyAccount = new FacultyAccount(
+            adviser,
+            email,
+            "FacultyTest123"
+        );
+
+        FacultyAccountStorage.addAccount(facultyAccount);
+    }
+
+    // ==========================================
+    // STUDENT LOGIN AUTHENTICATION
+    // ==========================================
+
+    public static Account authenticate(
+            String srCode,
+            String password) {
+
+        if (srCode == null || password == null) {
+            return null;
+        }
 
         Account account = AccountStorage.findAccount(srCode);
 
@@ -30,10 +74,32 @@ public class Auth {
     }
 
     // ==========================================
+    // FACULTY LOGIN AUTHENTICATION
+    // ==========================================
+
+    public static FacultyAccount authenticateFaculty(
+            String email,
+            String password) {
+
+        if (email == null || password == null) {
+            return null;
+        }
+
+        return FacultyAccountStorage.authenticate(
+            email.trim(),
+            password
+        );
+    }
+
+    // ==========================================
     // PASSWORD VALIDATION
     // ==========================================
 
     public static boolean isValidPassword(String password) {
+
+        if (password == null) {
+            return false;
+        }
 
         boolean hasUppercase = false;
         boolean hasLowercase = false;
@@ -67,7 +133,9 @@ public class Auth {
     // ==========================================
 
     public static boolean isValidSRCode(String srCode) {
-        return srCode != null && srCode.matches("\\d{2}-\\d{5}");
+
+        return srCode != null
+                && srCode.matches("\\d{2}-\\d{5}");
     }
 
     // ==========================================

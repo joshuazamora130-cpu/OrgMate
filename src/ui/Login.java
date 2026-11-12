@@ -5,12 +5,15 @@ import java.util.Scanner;
 
 import src.authentication.Auth;
 import src.model.Account;
+import src.model.FacultyAccount;
 import src.model.Student;
 import src.model.RegularStudent;
 import src.model.Officer;
+import src.model.President;
 import src.model.Secretary;
 import src.model.Treasurer;
 import src.model.Auditor;
+import src.model.Adviser;
 
 public class Login {
 
@@ -20,16 +23,43 @@ public class Login {
         System.out.println("             LOGIN");
         System.out.println("================================");
 
-        System.out.print("Enter SR Code: ");
-        String srCode = input.nextLine().trim();
+        System.out.print("Enter SR Code or Institutional Email: ");
+        String identifier = input.nextLine().trim();
 
         System.out.print("Enter Password: ");
         String password = input.nextLine();
 
-        if (srCode.isEmpty() || password.isEmpty()) {
+        if (identifier.isEmpty() || password.isEmpty()) {
             System.out.println("Please complete all fields.");
             return;
         }
+
+        // FACULTY ADVISER LOGIN
+        if (identifier.contains("@")) {
+
+            FacultyAccount facultyAccount =
+                    Auth.authenticateFaculty(identifier, password);
+
+            if (facultyAccount == null) {
+                System.out.println(
+                    "Incorrect Institutional Email or Password."
+                );
+                return;
+            }
+
+            Adviser adviser = facultyAccount.getAdviser();
+
+            System.out.println("\nFaculty login successful!");
+            System.out.println(
+                "Welcome, " + adviser.getFacultyName() + "!"
+            );
+
+            AdviserDashboard.show(input, adviser);
+            return;
+        }
+
+        // STUDENT AND OFFICER LOGIN
+        String srCode = identifier;
 
         if (!Auth.isValidSRCode(srCode)) {
             System.out.println(
@@ -46,10 +76,8 @@ public class Login {
         }
 
         System.out.println("\nLogin successful!");
-
         System.out.println(
-            "Welcome, " +
-            account.getStudent().getStudentName() + "!"
+            "Welcome, " + account.getStudent().getStudentName() + "!"
         );
 
         redirectDashboard(input, account);
@@ -63,23 +91,21 @@ public class Login {
 
         Student student = account.getStudent();
 
-        if (student instanceof Secretary) {
+        if (student instanceof President) {
+
+            PresidentDashboard.show(input, (President) student);
+
+        } else if (student instanceof Secretary) {
 
             SecretaryDashboard.show(input, (Secretary) student);
 
         } else if (student instanceof Treasurer) {
 
-            TreasurerDashboard.show(
-                input,
-                (Treasurer) student
-            );
+            TreasurerDashboard.show(input, (Treasurer) student);
 
         } else if (student instanceof Auditor) {
 
-            AuditorDashboard.show(
-                input,
-                (Auditor) student
-            );
+            AuditorDashboard.show(input, (Auditor) student);
 
         } else if (student instanceof RegularStudent) {
 
@@ -107,8 +133,7 @@ public class Login {
 
             System.out.println("\n================================");
             System.out.println(
-                "       " +
-                officer.getPosition().toUpperCase() +
+                "       " + officer.getPosition().toUpperCase() +
                 " DASHBOARD"
             );
             System.out.println("================================");
