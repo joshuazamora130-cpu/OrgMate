@@ -11,6 +11,7 @@ import src.model.RegularStudent;
 import src.model.GCashPayment;
 import src.model.MayaPayment;
 import src.model.CashPayment;
+import src.model.BankPayment;
 
 import src.services.PaymentStorage;
 
@@ -125,6 +126,7 @@ public class PaymentHistory {
         String mayaNumber = null;
         String mayaTransactionID = null;
         String cashCollector = null;
+        String bankName = null;
 
         if (ticket.getPayment() instanceof GCashPayment) {
 
@@ -161,6 +163,16 @@ public class PaymentHistory {
 
             if (cashCollector.isEmpty()) {
                 System.out.println("Cash collector name is required.");
+                return;
+            }
+
+        } else if (ticket.getPayment() instanceof BankPayment) {
+
+            System.out.print("New Bank Name: ");
+            bankName = input.nextLine().trim();
+
+            if (bankName.isEmpty()) {
+                System.out.println("Bank name is required.");
                 return;
             }
         }
@@ -219,6 +231,10 @@ public class PaymentHistory {
             System.out.println("Cash Collected By: " + cashCollector);
         }
 
+        if (bankName != null) {
+            System.out.println("Bank Name: " + bankName);
+        }
+
         System.out.println("New Receipt: " + receiptFile.getName());
 
         System.out.print(
@@ -232,16 +248,16 @@ public class PaymentHistory {
             return;
         }
 
-        // APPLY CORRECTIONS
+        // APPLY CORRECTIONS TO THE PAYMENT TICKET
 
         ticket.updatePaymentDetails(date, reference);
         ticket.updateReceiptPath(receiptPath);
 
         if (cashCollector != null) {
-            ticket.updateCashCollectorName(cashCollector);
-        }
 
-        if (ticket.getPayment() instanceof GCashPayment) {
+            ticket.updateCashCollectorName(cashCollector);
+
+        } else if (ticket.getPayment() instanceof GCashPayment) {
 
             ((GCashPayment) ticket.getPayment())
                     .setGcashNo(gcashNumber);
@@ -253,49 +269,55 @@ public class PaymentHistory {
 
             ((MayaPayment) ticket.getPayment())
                     .setTransactionID(mayaTransactionID);
+
+        } else if (ticket.getPayment() instanceof BankPayment) {
+
+            ((BankPayment) ticket.getPayment())
+                    .setBankName(bankName);
         }
 
-        // RECORD CORRECTIONS IN AUDIT TRAIL
+        // RESUBMIT CORRECTED TICKET TO DATABASE
 
-        StringBuilder auditRemarks = new StringBuilder();
+        String remarks =
+                "Student corrected and resubmitted payment details.";
 
-        auditRemarks.append(
-            "Student corrected payment date and reference number."
+        boolean success = PaymentStorage.resubmitTicket(
+                ticket,
+                student.getStudentID(),
+                student.getStudentName(),
+                remarks
         );
 
-        auditRemarks.append(
-            " Updated payment method details where applicable."
-        );
+        if (success) {
 
-        auditRemarks.append(
-            " Replacement receipt: " + receiptFile.getName() + "."
-        );
+            System.out.println("\n====================================");
+            System.out.println("   PAYMENT TICKET RESUBMITTED!");
+            System.out.println("====================================");
 
-        if (cashCollector != null) {
-            auditRemarks.append(
-                " Updated cash collector information."
+            System.out.println("Ticket ID: " + ticket.getTicketID());
+            System.out.println("New Status: Submitted");
+
+            System.out.println(
+                "Your corrections have been saved successfully."
+            );
+
+            System.out.println(
+                "Your ticket is now awaiting Treasurer review."
+            );
+
+        } else {
+
+            System.out.println("\n====================================");
+            System.out.println("   RESUBMISSION FAILED");
+            System.out.println("====================================");
+
+            System.out.println(
+                "Unable to save your corrections."
+            );
+
+            System.out.println(
+                "Please try again or contact the Treasurer."
             );
         }
-
-        ticket.addAuditLog(
-            student.getStudentName(),
-            "Payment Details Updated",
-            auditRemarks.toString()
-        );
-
-        // RESUBMIT CORRECTED TICKET
-
-        ticket.resubmit();
-
-        System.out.println("\n====================================");
-        System.out.println("   PAYMENT TICKET RESUBMITTED!");
-        System.out.println("====================================");
-
-        System.out.println("Ticket ID: " + ticket.getTicketID());
-        System.out.println("New Status: Submitted");
-
-        System.out.println(
-            "Your corrections have been sent to the Treasurer."
-        );
     }
 }

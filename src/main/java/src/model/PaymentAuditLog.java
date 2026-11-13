@@ -16,10 +16,20 @@ public class PaymentAuditLog {
             String action,
             String remarks) {
 
+        this(actor, action, remarks, LocalDateTime.now());
+    }
+
+    // Used when loading an existing audit record from the database.
+    public PaymentAuditLog(
+            String actor,
+            String action,
+            String remarks,
+            LocalDateTime timestamp) {
+
         this.actor = actor;
         this.action = action;
         this.remarks = remarks;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = timestamp == null ? LocalDateTime.now() : timestamp;
     }
 
     public String getActor() {
