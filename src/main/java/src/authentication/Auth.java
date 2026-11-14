@@ -1,56 +1,19 @@
 
 package src.authentication;
 
-import src.model.Account;
-import src.model.Adviser;
-import src.model.FacultyAccount;
+import org.mindrot.jbcrypt.BCrypt;
 
+import src.model.Account;
+import src.model.FacultyAccount;
 import src.services.AccountStorage;
 import src.services.FacultyAccountStorage;
 
 public class Auth {
 
-    // ==========================================
-    // OFFICER AUTHORIZATION CODE
-    // ==========================================
-
     private static final String OFFICER_REGISTRATION_CODE =
             "ORGMATE-ADMIN-2026";
 
-    // ==========================================
-    // TEMPORARY FACULTY TEST ACCOUNT
-    // ==========================================
-
-    static {
-        initializeTestFacultyAccount();
-    }
-
-    private static void initializeTestFacultyAccount() {
-
-        String email = "maria.santos@orgmate.test";
-
-        // Prevent duplicate initialization
-        if (FacultyAccountStorage.findByEmail(email) != null) {
-            return;
-        }
-
-        Adviser adviser = new Adviser(
-            "Dr. Maria Santos",
-            "FAC-001"
-        );
-
-        FacultyAccount facultyAccount = new FacultyAccount(
-            adviser,
-            email,
-            "FacultyTest123"
-        );
-
-        FacultyAccountStorage.addAccount(facultyAccount);
-    }
-
-    // ==========================================
-    // STUDENT LOGIN AUTHENTICATION
-    // ==========================================
+    // STUDENT AND OFFICER LOGIN
 
     public static Account authenticate(
             String srCode,
@@ -66,16 +29,22 @@ public class Auth {
             return null;
         }
 
-        if (!account.getPassword().equals(password)) {
+        try {
+            if (!BCrypt.checkpw(
+                    password,
+                    account.getPassword())) {
+                return null;
+            }
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid stored password hash.");
             return null;
         }
 
         return account;
     }
 
-    // ==========================================
-    // FACULTY LOGIN AUTHENTICATION
-    // ==========================================
+    // FACULTY LOGIN
 
     public static FacultyAccount authenticateFaculty(
             String email,
@@ -86,14 +55,12 @@ public class Auth {
         }
 
         return FacultyAccountStorage.authenticate(
-            email.trim(),
-            password
+                email.trim(),
+                password
         );
     }
 
-    // ==========================================
     // PASSWORD VALIDATION
-    // ==========================================
 
     public static boolean isValidPassword(String password) {
 
@@ -128,9 +95,7 @@ public class Auth {
                 && hasNumber;
     }
 
-    // ==========================================
     // SR CODE VALIDATION
-    // ==========================================
 
     public static boolean isValidSRCode(String srCode) {
 
@@ -138,9 +103,7 @@ public class Auth {
                 && srCode.matches("\\d{2}-\\d{5}");
     }
 
-    // ==========================================
     // OFFICER AUTHORIZATION
-    // ==========================================
 
     public static boolean authorizeOfficer(String code) {
 

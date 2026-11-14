@@ -109,6 +109,14 @@ public class PaymentTicket {
         return new ArrayList<>(auditLogs);
     }
 
+    // REPLACE WITH DATABASE AUDIT HISTORY
+
+    public void setAuditLogs(ArrayList<PaymentAuditLog> auditLogs) {
+        this.auditLogs = auditLogs == null
+                ? new ArrayList<>()
+                : new ArrayList<>(auditLogs);
+    }
+
     // AUDIT LOG MANAGEMENT
 
     public void addAuditLog(
@@ -147,14 +155,11 @@ public class PaymentTicket {
 
     // STATUS MANAGEMENT
 
-    // Maintains compatibility with existing code.
     public void setStatus(String status) {
-
         this.status = status;
         this.payment.setStatus(status);
     }
 
-    // Records who changed the ticket status and why.
     public void setStatus(
             String status,
             String actor,

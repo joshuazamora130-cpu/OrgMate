@@ -37,6 +37,7 @@ public class PaymentSubmission {
         }
 
         // Check for existing active payment ticket
+
         if (PaymentStorage.hasActiveTicket(student.getStudentID())) {
             System.out.println(
                 "You already have a payment ticket awaiting review or update."
@@ -46,6 +47,7 @@ public class PaymentSubmission {
         }
 
         // Display required organizations
+
         System.out.println("\nRequired organizations:");
 
         for (String organization : organizations) {
@@ -53,6 +55,7 @@ public class PaymentSubmission {
         }
 
         // Optional JPCS membership
+
         System.out.print(
             "\nWould you like to join JPCS for PHP 100.00? (Y/N): "
         );
@@ -73,6 +76,7 @@ public class PaymentSubmission {
         }
 
         // Calculate membership fees
+
         MembershipFeeCalculator.displayFeeBreakdown(
             student.getProgram(), includeJPCS
         );
@@ -82,6 +86,7 @@ public class PaymentSubmission {
         );
 
         // Select payment method
+
         System.out.println("\n========== PAYMENT METHOD ==========");
         System.out.println("[1] GCash");
         System.out.println("[2] Maya");
@@ -104,6 +109,7 @@ public class PaymentSubmission {
         }
 
         // Common payment information
+
         System.out.print("\nPayment Date (MM/DD/YYYY): ");
         String paymentDate = input.nextLine().trim();
 
@@ -123,6 +129,7 @@ public class PaymentSubmission {
         Payment payment;
 
         // Collect method-specific information
+
         switch (method) {
 
             case 1:
@@ -174,14 +181,12 @@ public class PaymentSubmission {
                     return;
                 }
 
-                // Uses your existing BankPayment constructor.
-                // If your constructor accepts bankName, use that
-                // existing signature instead.
                 payment = new BankPayment(
                     amount,
                     paymentDate,
                     "Submitted",
-                    referenceNo
+                    referenceNo,
+                    bankName
                 );
                 break;
 
@@ -199,6 +204,7 @@ public class PaymentSubmission {
         }
 
         // Cash collector information
+
         String cashCollectorName = null;
 
         if (payment instanceof CashPayment) {
@@ -217,7 +223,8 @@ public class PaymentSubmission {
             }
         }
 
-        // Receipt image upload (console file path)
+        // Receipt image validation (console version)
+
         System.out.println("\n========== RECEIPT UPLOAD ==========");
         System.out.println("Accepted formats: JPG, JPEG, PNG");
         System.out.println(
@@ -251,7 +258,16 @@ public class PaymentSubmission {
             return;
         }
 
+        // Display bank information
+
+        if (payment instanceof BankPayment) {
+            System.out.println(
+                "Bank Name: " + ((BankPayment) payment).getBankName()
+            );
+        }
+
         // Display submission summary
+
         System.out.println("\n========== REVIEW YOUR SUBMISSION ==========");
 
         System.out.println("Student: " + student.getStudentName());
@@ -281,6 +297,7 @@ public class PaymentSubmission {
         System.out.println("Receipt Image: " + receiptFile.getName());
 
         // Final confirmation
+
         System.out.print(
             "\nSubmit this payment ticket? (Y/N): "
         );
@@ -293,6 +310,7 @@ public class PaymentSubmission {
         }
 
         // Generate and save payment ticket
+
         String ticketID = PaymentStorage.generateTicketID();
 
         PaymentTicket ticket = new PaymentTicket(
@@ -304,25 +322,45 @@ public class PaymentSubmission {
             cashCollectorName
         );
 
-        PaymentStorage.addTicket(ticket);
+        // SAVE TO SUPABASE AND CHECK RESULT
 
-        // Submission confirmation
-        System.out.println("\n====================================");
-        System.out.println("   PAYMENT TICKET SUBMITTED!");
-        System.out.println("====================================");
+        boolean success = PaymentStorage.addTicket(ticket);
 
-        System.out.println("Ticket ID: " + ticketID);
-        System.out.printf("Amount: PHP %.2f%n", amount);
-        System.out.println("Status: Submitted");
+        if (success) {
 
-        System.out.println(
-            "\nYour payment ticket is now locked."
-        );
+            System.out.println("\n====================================");
+            System.out.println("   PAYMENT TICKET SUBMITTED!");
+            System.out.println("====================================");
 
-        System.out.println(
-            "Please wait for the Treasurer to review your submission."
-        );
+            System.out.println("Ticket ID: " + ticketID);
+            System.out.printf("Amount: PHP %.2f%n", amount);
+            System.out.println("Status: Submitted");
 
-        System.out.println("====================================");
+            System.out.println(
+                "\nYour payment ticket is now locked."
+            );
+
+            System.out.println(
+                "Please wait for the Treasurer to review your submission."
+            );
+
+            System.out.println("====================================");
+
+        } else {
+
+            System.out.println("\n====================================");
+            System.out.println("   PAYMENT SUBMISSION FAILED");
+            System.out.println("====================================");
+
+            System.out.println(
+                "Your payment ticket could not be saved."
+            );
+
+            System.out.println(
+                "Please try again. No successful submission was recorded."
+            );
+
+            System.out.println("====================================");
+        }
     }
 }
